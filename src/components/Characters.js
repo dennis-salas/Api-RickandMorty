@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Container, Row, Button, Card, ListGroup, Form  } from 'react-bootstrap';
 
 export const Characters = () => {
 
@@ -15,89 +16,125 @@ export const Characters = () => {
         }
     }, [])
 
-    
-
-    const getCharacters = async () => {
+    const getCharacters = async (value='') => {
         const url = 'https://rickandmortyapi.com/api/character/';
         const res = await fetch(url);
         const data = await res.json();
         //console.log(data);
         const results = data.results;
         // const {results} = data;
-
-        
-        return results
-        
+        if(value !== '') {
+            return results.filter((char) => char.name.toLowerCase().includes(value));
+        }else {
+            return results;
+        }
     }
+
     const handleClick = (element) => {
         setDetail(element);
-        console.log(detail);
     }
 
     const handleChange = (e) => {
-        setInput(e.target.value)
+        setInput(e.target.value);
+        setDetail([]);
     }
 
-    const handleSubmit = async (e) => {
-        
+    const handleSubmit = (e) => {    
         e.preventDefault();
-
-           const results = await getCharacters();
-           setCharacter(results);
-
-            console.log(input);
-            const peoples = character;
-            const data = peoples.filter((people) => people.name.toLowerCase().includes(input.toLowerCase()));
-            setCharacter(data);
-          
-        
+        const value = input.toLowerCase();
+        getCharacters(value).then(results =>{setCharacter(results)})
     }
 
     return (
-        <div>
-            <div>
-                <h1>Personajes Rick and Morty</h1>
-                <form
-                    onSubmit={handleSubmit} 
-                >
-                    <input 
-                        type="text"
-                        placeholder="Buscar"
-                        name="search"
-                        value={input}
-                        onChange={handleChange}
-                    ></input>
-                    <button
-                        type="submit" 
-                    >Buscar</button>
-                </form>
-            </div>
+        <Container fluid>
+            <Row className="align-items-center">
+                <div className="col-6">
+                    <h1>Personajes Rick and Morty</h1>
+                </div>
+                <div className="col-6">
+                    <Form
+                        onSubmit={handleSubmit}
+                    >
+                        <Row className="justify-content-between">
+                            <div className="col-6">
+                                <Form.Control 
+                                    type="text"
+                                    placeholder="Buscar"
+                                    name="search"
+                                    value={input}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                            <div className="col-6">
+                                <Button
+                                    type="submit"
+                                    variamt="success"
+                                >Buscar</Button>
+                            </div>
+                        </Row>
+                    </Form>
+                </div>
+            </Row>
             
             {
                 // Se realizo un condicional ternario 
-                detail.name ? 
-                <div className="card-detail">
-                    <img src={detail.image} className="card-img-detail" alt={detail.name}></img>
-                    <p className="card-text">Nombre: {detail.name}</p>
-                    <p className="card-text">Estado: {detail.status}</p>
-                    <p className="card-text">Origen: {detail.origin}</p>
-                    <p className="card-text">Especie: {detail.specie}</p>
-                </div>
+                detail.name ?
+                <Row className="justify-content-center">
+                    <Card style={{ width: '18rem' }} className="mx-2 my-2">
+                        <Card.Img 
+                            variant = "top"
+                            src= {detail.image}
+                            className= "mt-2"
+                        />
+                        <Card.Body>
+                            <Card.Title>
+                                {detail.name}
+                            </Card.Title>
+                        </Card.Body>
+                        <ListGroup variant="flush">
+                            <ListGroup.Item>Especie: {detail.species}</ListGroup.Item>
+                            <ListGroup.Item>Género: {detail.gender}</ListGroup.Item>
+                            <ListGroup.Item>Origen: {detail.origin.name}</ListGroup.Item>
+                            <ListGroup.Item>Estado: {detail.status}</ListGroup.Item>
+                        </ListGroup>
+                    </Card>
+                </Row>
                 : null
             }
-           
+                <Row>
             {
                 character.map(char => (
-                    <div className="card" key={char.id}>
-                        <img src={char.image} className="card-img-top" alt={char.name}></img>
-                        <p className="card-text">{char.name}</p>
-                        <p className="card-text">{char.status}</p>
-                        <p className="card-text">{char.gender}</p>
-                        <p className="card-text">{char.origin.name}</p>
-                        <button onClick={()=>{handleClick(char)}}>Detalle</button>
-                    </div>
+                    <Card 
+                        key={char.id}
+                        style={{ width: '18rem' }} 
+                        className="mx-2 my-2"
+                    >
+                    <Card.Img 
+                        variant = "top"
+                        src= {char.image}
+                        className= "mt-2"
+                    />
+                    <Card.Body>
+                        <Card.Title>
+                            {char.name}
+                        </Card.Title>
+                    </Card.Body>
+                    <ListGroup variant="flush">
+                        <ListGroup.Item>Género: {char.gender}</ListGroup.Item>
+                        <ListGroup.Item>Origen: {char.origin.name}</ListGroup.Item>
+                        <ListGroup.Item>Estado: {char.status}</ListGroup.Item>
+                    </ListGroup>
+                    <Button 
+                        variant="primary"
+                        onClick={()=>{handleClick(char)}}
+                        className= "mb-2"
+                    >
+                        Detalles
+                    </Button>
+                </Card>
                 ))
             }
-        </div>
+                </Row>
+        </Container>
     )
 }
